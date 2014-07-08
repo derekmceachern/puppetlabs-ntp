@@ -13,6 +13,7 @@ class ntp::params {
   $service_ensure    = 'running'
   $service_manage    = true
   $udlc              = false
+  $interfaces        = []
 
   # On virtual machines allow large clock skews.
   $panic = str2bool($::is_virtual) ? {
@@ -144,10 +145,10 @@ class ntp::params {
       ]
       $service_name = 'network/ntp'
       $servers      = [
-        '0.solaris.pool.ntp.org',
-        '1.solaris.pool.ntp.org',
-        '2.solaris.pool.ntp.org',
-        '3.solaris.pool.ntp.org',
+        '0.pool.ntp.org',
+        '1.pool.ntp.org',
+        '2.pool.ntp.org',
+        '3.pool.ntp.org',
       ]
     }
     # Gentoo was added as its own $::osfamily in Facter 1.7.0

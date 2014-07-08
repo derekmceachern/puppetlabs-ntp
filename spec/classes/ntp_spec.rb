@@ -95,13 +95,33 @@ describe 'ntp' do
           }
         end
       end
+      describe 'specified interfaces' do
+        context "when set" do
+          let(:params) {{
+            :servers           => ['a', 'b', 'c', 'd'],
+            :interfaces        => ['127.0.0.1', 'a.b.c.d']
+          }}
+
+          it { should contain_file('/etc/ntp.conf').with({
+            'content' => /interface ignore wildcard\ninterface listen 127.0.0.1\ninterface listen a.b.c.d/})
+          }
+        end
+        context "when not set" do
+          let(:params) {{
+            :servers           => ['a', 'b', 'c', 'd'],
+          }}
+
+          it { should_not contain_file('/etc/ntp.conf').with({
+            'content' => /interface ignore wildcard/})
+          }
+        end
+      end
 
       describe "ntp::install on #{system}" do
         let(:params) {{ :package_ensure => 'present', :package_name => ['ntp'], }}
 
         it { should contain_package('ntp').with(
-          :ensure => 'present',
-          :name   => 'ntp'
+          :ensure => 'present'
         )}
 
         describe 'should allow package ensure to be overridden' do
@@ -111,7 +131,7 @@ describe 'ntp' do
 
         describe 'should allow the package name to be overridden' do
           let(:params) {{ :package_ensure => 'present', :package_name => ['hambaby'] }}
-          it { should contain_package('ntp').with_name('hambaby') }
+          it { should contain_package('hambaby') }
         end
       end
 
@@ -224,6 +244,16 @@ describe 'ntp' do
 
         it 'uses the NTP pool servers by default' do
           should contain_file('/etc/ntp.conf').with({
+            'content' => /server \d.pool.ntp.org/,
+          })
+        end
+      end
+
+      describe "on osfamily Solaris" do
+        let(:facts) {{ :osfamily => 'Solaris' }}
+
+        it 'uses the NTP pool servers by default' do
+          should contain_file('/etc/inet/ntp.conf').with({
             'content' => /server \d.pool.ntp.org/,
           })
         end
